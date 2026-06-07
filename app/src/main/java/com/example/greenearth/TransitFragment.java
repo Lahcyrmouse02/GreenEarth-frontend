@@ -1,6 +1,7 @@
 package com.example.greenearth; // Sesuaikan dengan nama package-mu
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,10 @@ import com.google.android.material.slider.Slider;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class TransitFragment extends Fragment {
 
     private TextView textCarbonResult, textDistanceValue;
@@ -25,8 +30,10 @@ public class TransitFragment extends Fragment {
     private ChipGroup chipGroupTransit;
     private Button btnLogJourney;
 
-    // Asumsi faktor emisi (kg CO2 per mil)
-    private double emissionFactor = 0.41; // Default untuk "Car"
+    private String currentMode = "Car"; // Default pilihan awal
+
+    // Variabel tambahan untuk menyimpan hasil hitung angka murni (tanpa teks kg)
+    private float currentTotalCarbon = 0.0f;
 
     @Nullable
     @Override
@@ -45,20 +52,8 @@ public class TransitFragment extends Fragment {
             @Override
             public void onCheckedChanged(@NonNull ChipGroup group, @NonNull List<Integer> checkedIds) {
                 if (!checkedIds.isEmpty()) {
-                    // Ambil chip yang sedang diklik
                     Chip selectedChip = group.findViewById(checkedIds.get(0));
-                    String mode = selectedChip.getText().toString();
-
-                    // Ubah faktor pengali karbon berdasarkan kendaraan
-                    if (mode.equals("Car")) {
-                        emissionFactor = 0.41;
-                    } else if (mode.equals("Bus")) {
-                        emissionFactor = 0.17;
-                    } else if (mode.equals("Train")) {
-                        emissionFactor = 0.05;
-                    }
-
-                    // Hitung ulang jika mode berubah
+                    currentMode = selectedChip.getText().toString();
                     calculateEmissions();
                 }
             }
@@ -72,14 +67,43 @@ public class TransitFragment extends Fragment {
             }
         });
 
-        // 4. Aksi saat tombol Log ditekan
+        // 4. Aksi saat tombol Log ditekan (Simpan ke Database)
         btnLogJourney.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Untuk sementara kita tampilkan pesan pop-up (Toast)
-                // Nanti ini akan mengirim data ke Summary/Database
-                String currentCarbon = textCarbonResult.getText().toString();
-                Toast.makeText(getContext(), "Perjalanan disimpan: " + currentCarbon, Toast.LENGTH_SHORT).show();
+                // Cegah penyimpanan jika jarak masih 0
+                if (currentTotalCarbon <= 0) {
+                    Toast.makeText(getContext(), "Tentukan jarak perjalanan terlebih dahulu!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Ambil jarak dari slider
+                float distance = sliderDistance.getValue();
+
+                // Buat deskripsi perjalanan dinamis (Contoh: "15.0 km • Bus")
+                String deskripsiPerjalanan = String.format("%.1f km • %s", distance, currentMode);
+
+                // Bungkus ke LogRequest dengan tipe "Transit"
+                LogRequest request = new LogRequest("Transit", deskripsiPerjalanan, currentTotalCarbon);
+
+                // Tembak API ke Backend
+                // (Catatan: Tetap panggil .logMeal() karena endpoint-nya sama-sama ke /api/logs)
+                RetrofitClient.getApi().logMeal(request).enqueue(new Callback<LogResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<LogResponse> call, @NonNull Response<LogResponse> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Perjalanan berhasil dicatat!", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "Gagal mencatat perjalanan.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<LogResponse> call, @NonNull Throwable t) {
+                        Log.e("API_ERROR", "Gagal Save Transit: " + t.getMessage());
+                        Toast.makeText(getContext(), "Error Jaringan: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
 
@@ -88,16 +112,19 @@ public class TransitFragment extends Fragment {
 
     // Method khusus untuk melakukan perhitungan matematika
     private void calculateEmissions() {
-        // Ambil nilai jarak dari slider
+        // 1. Ambil nilai jarak dari slider
         float distance = sliderDistance.getValue();
 
-        // Update teks jarak (misal: "15 mi")
-        textDistanceValue.setText(String.format("%.0f mi", distance));
+        // 2. Update teks jarak di layar
+        textDistanceValue.setText(String.format("%.0f km", distance));
 
-        // Rumus: Jarak * Faktor Emisi
-        double totalCarbon = distance * emissionFactor;
+        // 3. Minta CarbonCalculator untuk menghitung
+        double totalCarbon = CarbonCalculator.calculateTransitEmission(distance, currentMode);
 
-        // Update teks hasil karbon (misal: "6.2 kg CO2") dengan 1 angka di belakang koma
-        textCarbonResult.setText(String.format("%.1f kg CO2", totalCarbon));
+        // 4. Simpan nilai murninya ke variabel global yang baru kita buat
+        currentTotalCarbon = (float) totalCarbon;
+
+        // 5. Update teks hasil di layar
+        textCarbonResult.setText(String.format("%.1f kg CO₂", currentTotalCarbon));
     }
 }

@@ -78,7 +78,7 @@
                 android:id="@+id/textCarbonResult"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0.0 kg CO2"
+                android:text="0.0 kg CO₂"
                 android:textSize="40sp"
                 android:textColor="#4A3B32"
                 android:layout_marginTop="8dp"/>
@@ -93,7 +93,7 @@
                     android:id="@+id/textDistanceValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0 mi"
+                    android:text="0 km"
                     android:textColor="#10C265"
                     android:textStyle="bold"
                     android:layout_alignParentEnd="true"/>

@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="GreenEarth">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-05-22T12:29:17.918765500Z">
+        <DropdownSelection timestamp="2026-06-07T07:48:25.538842700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\Anselmus\.android\avd\Pixel_9.avd" />

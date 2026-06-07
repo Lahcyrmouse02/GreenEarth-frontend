@@ -1,74 +1,98 @@
-package com.example.greenearth; // Sesuaikan dengan package kamu
+package com.example.greenearth;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class EnergyFragment extends Fragment {
 
-    private ProgressBar progressBarEnergy;
-    private TextView textProgressPercent;
+    private TextView txtProgressPercentage;
+    private CheckBox cbHabit1, cbHabit2, cbHabit3, cbHabit4, cbHabit5;
+    private Button btnSaveEnergy; // Tambahkan tombol save
 
-    private int completedHabits = 0;
-    private final int TOTAL_HABITS = 4; // Asumsi ada 4 kebiasaan harian
+    private final float TOTAL_HABITS = 5.0f;
+    private int currentCheckedCount = 0; // Variabel penyimpan jumlah centang
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_energy, container, false);
 
-        progressBarEnergy = view.findViewById(R.id.progressBarEnergy);
-        textProgressPercent = view.findViewById(R.id.textProgressPercent);
+        txtProgressPercentage = view.findViewById(R.id.txtProgressPercentage);
+        cbHabit1 = view.findViewById(R.id.cbHabit1);
+        cbHabit2 = view.findViewById(R.id.cbHabit2);
+        cbHabit3 = view.findViewById(R.id.cbHabit3);
+        cbHabit4 = view.findViewById(R.id.cbHabit4);
+        cbHabit5 = view.findViewById(R.id.cbHabit5);
 
-        // Set awal ke 0%
-        updateProgress();
+        // Pastikan di fragment_energy.xml kamu sudah menambah <Button android:id="@+id/btnSaveEnergy" .../>
+        btnSaveEnergy = view.findViewById(R.id.btnSaveEnergy);
 
-        // Setup Habit 1 (Contoh untuk "Unplug standby appliances")
-        CardView cardHabit1 = view.findViewById(R.id.cardHabit1);
-        RadioButton radioHabit1 = view.findViewById(R.id.radioHabit1);
+        CompoundButton.OnCheckedChangeListener checkListener = (buttonView, isChecked) -> calculateProgress();
 
-        if (cardHabit1 != null && radioHabit1 != null) {
-            // Menonaktifkan klik langsung pada radio button agar user klik Card-nya saja
-            radioHabit1.setClickable(false);
+        cbHabit1.setOnCheckedChangeListener(checkListener);
+        cbHabit2.setOnCheckedChangeListener(checkListener);
+        cbHabit3.setOnCheckedChangeListener(checkListener);
+        cbHabit4.setOnCheckedChangeListener(checkListener);
+        cbHabit5.setOnCheckedChangeListener(checkListener);
 
-            cardHabit1.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // Balikkan state (jika belum dicentang jadi dicentang, dan sebaliknya)
-                    boolean isChecked = !radioHabit1.isChecked();
-                    radioHabit1.setChecked(isChecked);
-
-                    // Ubah warna background Card sebagai penanda visual
-                    if (isChecked) {
-                        cardHabit1.setCardBackgroundColor(0xFFEAF6F0); // Hijau pudar
-                        completedHabits++;
-                    } else {
-                        cardHabit1.setCardBackgroundColor(0xFFFFFFFF); // Putih
-                        completedHabits--;
-                    }
-                    updateProgress();
+        // LOGIKA TOMBOL SAVE ENERGY
+        if (btnSaveEnergy != null) {
+            btnSaveEnergy.setOnClickListener(v -> {
+                if (currentCheckedCount == 0) {
+                    Toast.makeText(getContext(), "Ceklis minimal 1 kebiasaan!", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+
+                // Asumsi: 1 centang menghemat 0.5 kg CO2. Makin banyak diceklis, angka penghematan makin besar!
+                float carbonSavedValue = currentCheckedCount * 0.5f;
+
+                // Kirim data dengan TYPE "Energy"
+                LogRequest request = new LogRequest("Energy", currentCheckedCount + " tasks completed", carbonSavedValue);
+
+                // Tembak API POST ke server
+                RetrofitClient.getApi().logMeal(request).enqueue(new Callback<LogResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<LogResponse> call, @NonNull Response<LogResponse> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "Habits Saved! Karbon dihemat: " + carbonSavedValue + " kg", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<LogResponse> call, @NonNull Throwable t) {
+                        Log.e("API_ERROR", "Gagal Save Energy: " + t.getMessage());
+                    }
+                });
             });
         }
-
-        // (Opsional) Lakukan copy-paste blok logika Habit 1 di atas untuk Habit 2, 3, dan 4
 
         return view;
     }
 
-    private void updateProgress() {
-        // Hitung persentase: (jumlah selesai / total) * 100
-        int percentage = (int) (((float) completedHabits / TOTAL_HABITS) * 100);
+    private void calculateProgress() {
+        currentCheckedCount = 0;
 
-        progressBarEnergy.setProgress(percentage);
-        textProgressPercent.setText(percentage + "%");
+        if (cbHabit1.isChecked()) currentCheckedCount++;
+        if (cbHabit2.isChecked()) currentCheckedCount++;
+        if (cbHabit3.isChecked()) currentCheckedCount++;
+        if (cbHabit4.isChecked()) currentCheckedCount++;
+        if (cbHabit5.isChecked()) currentCheckedCount++;
+
+        int percentage = (int) ((currentCheckedCount / TOTAL_HABITS) * 100);
+        txtProgressPercentage.setText(percentage + "%");
     }
 }

@@ -20,15 +20,27 @@
             android:id="@+id/imgFoodIcon"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@android:drawable/ic_menu_gallery" /> <TextView
-        android:id="@+id/txtFoodName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Beef"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#3E2723"
-        android:layout_marginTop="12dp"/>
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/ic_menu_gallery" />
+
+        <TextView
+            android:id="@+id/txtFoodName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Beef"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#3E2723"
+            android:layout_marginTop="12dp"/>
+
+        <TextView
+            android:id="@+id/txtCarbonValue"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="15.2 kg CO2"
+            android:textSize="14sp"
+            android:textColor="#757575"
+            android:layout_marginTop="4dp"/>
 
         <TextView
             android:id="@+id/txtImpactLabel"
@@ -42,5 +54,17 @@
             android:paddingVertical="4dp"
             android:layout_marginTop="8dp"
             android:textStyle="bold"/>
+
+        <Button
+            android:id="@+id/btnLogMeal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="#4CAF50"
+            android:text="Log Meal"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            app:cornerRadius="8dp"/>
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>

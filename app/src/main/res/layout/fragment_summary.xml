@@ -23,25 +23,52 @@
             android:layout_marginBottom="32dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:gravity="center" android:padding="32dp">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Carbon Saved" android:textColor="#8C7A6B"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="142 kg CO2" android:textSize="36sp" android:textStyle="bold" android:textColor="#4A3B32" android:layout_marginTop="8dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Top 15% this week" android:textColor="#10C265" android:background="#EAF6F0" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:layout_marginTop="12dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtTotalSaved" android:textSize="36sp" android:textStyle="bold" android:textColor="#4A3B32" android:layout_marginTop="8dp"/>
+
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Top 15% this week" android:textColor="#10C265" android:background="#EAF6F0" android:paddingHorizontal="12dp" android:paddingVertical="4dp" android:layout_marginTop="12dp" android:visibility="gone"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
         <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="16dp">
             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Today's Footprint" android:textStyle="bold" android:textColor="#4A3B32" android:textSize="18sp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Goal: Under 10 kg" android:textColor="#8C7A6B"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtGoalStatus" android:textColor="#8C7A6B"/>
             </LinearLayout>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="8.5 kg" android:textStyle="bold" android:textColor="#4A3B32" android:textSize="22sp" android:layout_alignParentEnd="true"/>
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtTodayFootprint" android:textStyle="bold" android:textColor="#4A3B32" android:textSize="22sp" android:layout_alignParentEnd="true"/>
         </RelativeLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:orientation="horizontal"
-            android:layout_marginBottom="32dp">
-            <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" android:background="#74E39A"/> <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="4" android:background="#10C265"/> <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="2" android:background="#A8F0C6"/> </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Breakdown"
+                android:textColor="#212121"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"/>
+
+            <Button
+                android:id="@+id/btnResetData"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:backgroundTint="#FFEBEE"
+                android:textColor="#D32F2F"
+                android:text="Reset Today"
+                app:cornerRadius="8dp"/>
+        </RelativeLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvBreakdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:nestedScrollingEnabled="false"/>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -50,8 +77,8 @@
             app:cardBackgroundColor="#EAF6F0"
             app:cardElevation="0dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Great momentum!" android:textStyle="bold" android:textColor="#4A3B32" android:textSize="16sp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="You've kept your transit emissions under 3kg for three days in a row." android:textColor="#667060" android:layout_marginTop="8dp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtMomentumTitle" android:textStyle="bold" android:textColor="#4A3B32" android:textSize="16sp"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/txtMomentumDesc" android:textColor="#667060" android:layout_marginTop="8dp"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
